@@ -199,9 +199,21 @@ input[type="file"] { display:none; }
         <div class="cdot" style="background:#d1d5db" data-c="160,160,160" onclick="pickColor(this)"></div>
       </div>
     </div>
+    <div class="arow" style="flex-wrap:wrap; gap:10px">
+      <span class="albl" style="width:100%">Opacidade</span>
+      <div class="ochips">
+        <button class="ochip sel" onclick="setOpacity(10,this)">10%</button>
+        <button class="ochip" onclick="setOpacity(30,this)">30%</button>
+        <button class="ochip" onclick="setOpacity(50,this)">50%</button>
+        <button class="ochip" onclick="setOpacity(70,this)">70%</button>
+        <button class="ochip" id="outroBtn" onclick="toggleOutro(this)">Outro</button>
+      </div>
+      <div class="ocustom-wrap" id="ocWrap">
+        <input type="number" class="ocustom-inp" id="ocInput" min="5" max="95" placeholder="Ex: 45" inputmode="numeric">
+        <button class="ocustom-ok" onclick="applyCustomOp()">OK</button>
+      </div>
+    </div>
   </div>
-
-  <p class="sec-lbl">Preview</p>
   <div class="prev-card">
     <div class="prev-empty" id="prevEmpty">
       <div class="prev-icon">🪪</div>
@@ -209,7 +221,7 @@ input[type="file"] { display:none; }
     </div>
     <canvas id="previewCanvas" style="display:none"></canvas>
   </div>
-  <button class="btn-g" onclick="doRender()">🔄 Atualizar preview</button>
+
 
   <div class="brow">
     <button class="btn-t" onclick="shareFile()">📤 Compartilhar documento</button>
@@ -389,8 +401,9 @@ function drawWatermark(ctx, w, h) {
   }
 
   // usa rgba diretamente — mais confiável no Safari iOS que globalAlpha
-  var fillColor   = 'rgba(' + r + ',' + g + ',' + b + ',0.10)';
-  var fillColorLo = 'rgba(' + r + ',' + g + ',' + b + ',0.04)';
+  var alpha       = opVal / 100;
+  var fillColor   = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+  var fillColorLo = 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha * 0.4) + ')';
 
   ctx.save();
   ctx.globalAlpha  = 1.0;
@@ -411,7 +424,7 @@ function drawWatermark(ctx, w, h) {
 
   } else if (pos === 'bottom') {
     ctx.translate(w/2, h - fs * 2);
-    ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',0.05)';
+    ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha * 0.5) + ')';
     ctx.fillRect(-w/2, -fs*1.5, w, fs*3.5);
     ctx.fillStyle = fillColor;
     ctx.fillText(text, 0, 0);
