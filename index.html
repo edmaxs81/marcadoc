@@ -215,35 +215,28 @@
     font-size: 13px; font-weight: 800; color: white;
   }
 
-  .slider-wrap { display: flex; align-items: center; gap: 12px; }
-
-  .custom-slider {
-    flex: 1; height: 32px;
-    display: flex; align-items: center;
-    position: relative; cursor: pointer;
-    touch-action: none; user-select: none; -webkit-user-select: none;
+  .opacity-ctrl {
+    display: flex; align-items: center; gap: 6px;
   }
 
-  .custom-slider-track {
-    position: absolute; left: 0; right: 0;
-    height: 4px; background: var(--sep); border-radius: 2px;
+  .op-chip {
+    padding: 6px 10px;
+    background: var(--bg);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    color: var(--label2); font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-user-select: none; user-select: none;
   }
 
-  .custom-slider-fill {
-    height: 100%; background: var(--teal); border-radius: 2px; width: 38%;
-  }
+  .op-chip:active { transform: scale(0.93); }
 
-  .custom-slider-thumb {
-    position: absolute;
-    width: 28px; height: 28px;
-    background: white; border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(26,181,160,0.5), 0 1px 3px rgba(0,0,0,0.15);
-    left: calc(38% - 14px);
-    top: 50%; transform: translateY(-50%);
-    border: 2px solid var(--teal);
+  .op-chip.selected {
+    background: var(--teal-mid);
+    border-color: var(--teal);
+    color: var(--teal-dark);
   }
-
-  .slider-val { font-size: 13px; color: var(--teal); min-width: 36px; text-align: right; font-weight: 700; }
 
   .preview-card {
     background: var(--card); border-radius: var(--radius-xl);
@@ -382,14 +375,11 @@
     </div>
     <div class="app-row">
       <span class="app-row-label">Opacidade</span>
-      <div class="slider-wrap" style="width:52%">
-        <div class="custom-slider" id="opacitySlider">
-          <div class="custom-slider-track">
-            <div class="custom-slider-fill" id="sliderFill"></div>
-          </div>
-          <div class="custom-slider-thumb" id="sliderThumb"></div>
-        </div>
-        <span class="slider-val" id="opacityVal">38%</span>
+      <div class="opacity-ctrl">
+        <button class="op-chip" onclick="setOpacity(this,10)">10%</button>
+        <button class="op-chip selected" onclick="setOpacity(this,30)">30%</button>
+        <button class="op-chip" onclick="setOpacity(this,50)">50%</button>
+        <button class="op-chip" onclick="setOpacity(this,70)">70%</button>
       </div>
     </div>
   </div>
@@ -543,52 +533,16 @@ function applyWatermark(ctx, w, h) {
   ctx.restore();
 }
 
-// Custom slider — substitui input[range] para funcionar no iOS
-let opacityValue = 38;
-const MIN_OP = 15, MAX_OP = 75;
+let opacityValue = 30;
 
-function initSlider() {
-  const slider = document.getElementById('opacitySlider');
-  const fill   = document.getElementById('sliderFill');
-  const thumb  = document.getElementById('sliderThumb');
-  const label  = document.getElementById('opacityVal');
-
-  function setPct(pct) {
-    pct = Math.max(0, Math.min(1, pct));
-    opacityValue = Math.round(MIN_OP + pct * (MAX_OP - MIN_OP));
-    const displayPct = pct * 100;
-    fill.style.width  = displayPct + '%';
-    thumb.style.left  = 'calc(' + displayPct + '% - 14px)';
-    label.textContent = opacityValue + '%';
-    autoPreview();
-  }
-
-  // Set initial position
-  setPct((opacityValue - MIN_OP) / (MAX_OP - MIN_OP));
-
-  function getClientX(e) {
-    return e.touches ? e.touches[0].clientX : e.clientX;
-  }
-
-  function onMove(e) {
-    e.preventDefault();
-    const rect = slider.getBoundingClientRect();
-    const pct  = (getClientX(e) - rect.left) / rect.width;
-    setPct(pct);
-  }
-
-  slider.addEventListener('touchstart', onMove, { passive: false });
-  slider.addEventListener('touchmove',  onMove, { passive: false });
-  slider.addEventListener('mousedown', function(e) {
-    onMove(e);
-    function mm(ev) { onMove(ev); }
-    function mu() { document.removeEventListener('mousemove', mm); document.removeEventListener('mouseup', mu); }
-    document.addEventListener('mousemove', mm);
-    document.addEventListener('mouseup', mu);
-  });
+function setOpacity(btn, val) {
+  document.querySelectorAll('.op-chip').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  opacityValue = val;
+  autoPreview();
 }
 
-document.addEventListener('DOMContentLoaded', initSlider);
+document.addEventListener('DOMContentLoaded', function() {});
 
 function autoPreview() { if (currentImage) renderPreview(); }
 
