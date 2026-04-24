@@ -368,7 +368,7 @@
       <span class="app-row-label">Opacidade</span>
       <div class="slider-wrap" style="width:52%">
         <input type="range" id="opacity" min="15" max="75" value="38"
-          oninput="document.getElementById('opacityVal').textContent=this.value+'%'; autoPreview();">
+          oninput="updateOpacity(this)" onchange="updateOpacity(this)">
         <span class="slider-val" id="opacityVal">38%</span>
       </div>
     </div>
@@ -522,6 +522,24 @@ function applyWatermark(ctx, w, h) {
   }
   ctx.restore();
 }
+
+function updateOpacity(el) {
+  document.getElementById('opacityVal').textContent = el.value + '%';
+  autoPreview();
+}
+
+// Fix iOS Safari slider — fires on touchmove
+document.addEventListener('DOMContentLoaded', function() {
+  const slider = document.getElementById('opacity');
+  slider.addEventListener('touchmove', function(e) {
+    document.getElementById('opacityVal').textContent = slider.value + '%';
+    autoPreview();
+  }, { passive: true });
+  slider.addEventListener('touchend', function() {
+    document.getElementById('opacityVal').textContent = slider.value + '%';
+    autoPreview();
+  });
+});
 
 function autoPreview() { if (currentImage) renderPreview(); }
 
