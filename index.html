@@ -216,7 +216,7 @@
   }
 
   .opacity-ctrl {
-    display: flex; align-items: center; gap: 6px;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
   }
 
   .op-chip {
@@ -236,6 +236,40 @@
     background: var(--teal-mid);
     border-color: var(--teal);
     color: var(--teal-dark);
+  }
+
+  .op-custom-wrap {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .op-custom-wrap.visible { display: flex; }
+
+  .op-custom-input {
+    width: 70px;
+    background: var(--bg);
+    border: 2px solid var(--teal);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 14px; font-weight: 700;
+    color: var(--teal-dark);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    text-align: center;
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  .op-custom-ok {
+    background: var(--teal);
+    color: white; border: none;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 13px; font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer;
   }
 
   .preview-card {
@@ -373,13 +407,19 @@
         <div class="color-dot" style="background:#d1d5db;box-shadow:inset 0 0 0 1px #bbb" data-color="160,160,160" onclick="pickColor(this)"></div>
       </div>
     </div>
-    <div class="app-row">
-      <span class="app-row-label">Opacidade</span>
+    <div class="app-row" style="flex-wrap:wrap; align-items:flex-start; padding-bottom:14px">
+      <span class="app-row-label" style="width:100%; margin-bottom:10px">Opacidade</span>
       <div class="opacity-ctrl">
         <button class="op-chip" onclick="setOpacity(this,10)">10%</button>
         <button class="op-chip selected" onclick="setOpacity(this,30)">30%</button>
         <button class="op-chip" onclick="setOpacity(this,50)">50%</button>
         <button class="op-chip" onclick="setOpacity(this,70)">70%</button>
+        <button class="op-chip" id="outroBtn" onclick="toggleOutro()">Outro</button>
+      </div>
+      <div class="op-custom-wrap" id="opCustomWrap">
+        <input type="number" class="op-custom-input" id="opCustomInput"
+          min="5" max="95" placeholder="40" inputmode="numeric">
+        <button class="op-custom-ok" onclick="applyCustomOpacity()">OK</button>
       </div>
     </div>
   </div>
@@ -392,6 +432,7 @@
     </div>
     <canvas id="previewCanvas" style="display:none"></canvas>
   </div>
+  <button class="btn-ghost" onclick="renderPreview()" style="margin-top:-6px">🔄 Atualizar preview</button>
 
   <div class="btn-row">
     <button class="btn-teal" onclick="shareFile()">📤 Compartilhar documento</button>
@@ -539,12 +580,40 @@ function setOpacity(btn, val) {
   document.querySelectorAll('.op-chip').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   opacityValue = val;
+  document.getElementById('opCustomWrap').classList.remove('visible');
   autoPreview();
 }
 
-document.addEventListener('DOMContentLoaded', function() {});
+function toggleOutro() {
+  document.querySelectorAll('.op-chip').forEach(b => b.classList.remove('selected'));
+  document.getElementById('outroBtn').classList.add('selected');
+  const wrap = document.getElementById('opCustomWrap');
+  wrap.classList.toggle('visible');
+  if (wrap.classList.contains('visible')) {
+    document.getElementById('opCustomInput').focus();
+  }
+}
 
-function autoPreview() { if (currentImage) renderPreview(); }
+function applyCustomOpacity() {
+  const input = document.getElementById('opCustomInput');
+  let val = parseInt(input.value);
+  if (isNaN(val)) return;
+  val = Math.max(5, Math.min(95, val));
+  input.value = val;
+  opacityValue = val;
+  autoPreview();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('opCustomInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') applyCustomOpacity();
+  });
+});
+
+function autoPreview() {
+  if (!currentImage) return;
+  setTimeout(renderPreview, 0);
+}
 
 function getOutputCanvas() {
   if (!currentImage) return null;
