@@ -199,20 +199,6 @@ input[type="file"] { display:none; }
         <div class="cdot" style="background:#d1d5db" data-c="160,160,160" onclick="pickColor(this)"></div>
       </div>
     </div>
-    <div class="arow" style="flex-wrap:wrap; gap:10px">
-      <span class="albl" style="width:100%">Opacidade</span>
-      <div class="ochips">
-        <button class="ochip" onclick="setOpacity(10,this)">10%</button>
-        <button class="ochip sel" onclick="setOpacity(30,this)">30%</button>
-        <button class="ochip" onclick="setOpacity(50,this)">50%</button>
-        <button class="ochip" onclick="setOpacity(70,this)">70%</button>
-        <button class="ochip" id="outroBtn" onclick="toggleOutro(this)">Outro</button>
-      </div>
-      <div class="ocustom-wrap" id="ocWrap">
-        <input type="number" class="ocustom-inp" id="ocInput" min="5" max="95" placeholder="Ex: 45" inputmode="numeric">
-        <button class="ocustom-ok" onclick="applyCustomOp()">OK</button>
-      </div>
-    </div>
   </div>
 
   <p class="sec-lbl">Preview</p>
@@ -243,7 +229,7 @@ var currentFile = null;
 var color  = '239,68,68';
 var pos    = 'diagonal';
 var size   = '24';
-var opVal  = 30;
+var opVal  = 10;
 
 // ── Helpers ────────────────────────────────────────────
 function getDate() { return new Date().toLocaleDateString('pt-BR'); }
@@ -391,9 +377,16 @@ function doRender() {
 
 function drawWatermark(ctx, w, h) {
   var text    = getText();
-  var opacity = opVal / 100;
+  var opacity = 0.10;
   var rgb     = color.split(',');
-  var fs      = Math.max(10, Math.round(parseInt(size) * (w / 380)));
+  // usa largura para escalar — limita a largura maxima do texto a 80% da imagem
+  var fs      = Math.max(10, Math.round(parseInt(size) * (w / 600)));
+  // garante que o texto caiba na largura
+  ctx.font = 'bold ' + fs + 'px sans-serif';
+  var tw = ctx.measureText(text).width;
+  if (tw > w * 0.85) {
+    fs = Math.floor(fs * (w * 0.85 / tw));
+  }
 
   ctx.save();
   ctx.globalAlpha   = opacity;
@@ -401,29 +394,29 @@ function drawWatermark(ctx, w, h) {
   ctx.font          = 'bold ' + fs + 'px sans-serif';
   ctx.textAlign     = 'center';
   ctx.textBaseline  = 'middle';
-  ctx.shadowColor   = 'rgba(0,0,0,0.2)';
-  ctx.shadowBlur    = fs * 0.3;
+  ctx.shadowColor   = 'rgba(0,0,0,0.1)';
+  ctx.shadowBlur    = 2;
 
   if (pos === 'diagonal') {
     ctx.translate(w/2, h/2);
     ctx.rotate(-Math.PI / 6);
     ctx.fillText(text, 0, 0);
-    ctx.globalAlpha = opacity * 0.3;
-    ctx.fillText(text, 0,  fs * 2.2);
-    ctx.fillText(text, 0, -fs * 2.2);
+    ctx.globalAlpha = 0.04;
+    ctx.fillText(text, 0,  fs * 2.5);
+    ctx.fillText(text, 0, -fs * 2.5);
 
   } else if (pos === 'bottom') {
-    ctx.translate(w/2, h - fs * 1.8);
-    ctx.globalAlpha = opacity * 0.12;
-    ctx.fillRect(-w/2, -fs*1.4, w, fs*3);
+    ctx.translate(w/2, h - fs * 2);
+    ctx.globalAlpha = 0.05;
+    ctx.fillRect(-w/2, -fs*1.5, w, fs*3.5);
     ctx.globalAlpha = opacity;
     ctx.fillText(text, 0, 0);
 
   } else if (pos === 'repeat') {
     ctx.rotate(-Math.PI / 7);
-    var tw   = ctx.measureText(text).width;
-    var stepX = tw + fs * 4;
-    var stepY = fs * 5;
+    var tw2  = ctx.measureText(text).width;
+    var stepX = tw2 + fs * 3;
+    var stepY = fs * 6;
     for (var y = -h*1.5; y < h*2.5; y += stepY)
       for (var x = -w*1.5; x < w*2.5; x += stepX)
         ctx.fillText(text, x, y);
