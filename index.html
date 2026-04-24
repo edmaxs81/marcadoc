@@ -8,317 +8,109 @@
 <meta name="apple-mobile-web-app-title" content="MarcaDoc">
 <meta name="theme-color" content="#1ab5a0">
 <title>MarcaDoc</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-  :root {
-    --teal:       #1ab5a0;
-    --teal-dark:  #148f7e;
-    --teal-light: #e8f8f6;
-    --teal-mid:   rgba(26,181,160,0.15);
-    --bg:         #f0f4f8;
-    --card:       #ffffff;
-    --label:      #1a2e35;
-    --label2:     #4a6670;
-    --label3:     #9ab0b8;
-    --sep:        #e8eef1;
-    --radius-xl:  20px;
-    --radius-lg:  16px;
-    --radius-md:  12px;
-    --shadow-sm:  0 2px 8px rgba(26,181,160,0.08);
-  }
+:root {
+  --teal: #1ab5a0; --teal-dark: #148f7e;
+  --teal-light: #e8f8f6; --teal-mid: rgba(26,181,160,0.15);
+  --bg: #f0f4f8; --card: #fff;
+  --label: #1a2e35; --label2: #4a6670; --label3: #9ab0b8;
+  --sep: #e8eef1; --r-xl: 20px; --r-lg: 16px; --r-md: 12px;
+  --sh: 0 2px 8px rgba(26,181,160,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--label); font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100svh; -webkit-font-smoothing: antialiased; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+.hero { background: linear-gradient(135deg,#1ab5a0,#0d9488 60%,#0f766e); padding: 52px 20px 28px; position: relative; overflow: hidden; }
+.hero::before { content:''; position:absolute; top:-40px; right:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.06); }
+.hero-icon { width:48px; height:48px; background:rgba(255,255,255,0.2); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:14px; }
+.hero h1 { font-size:28px; font-weight:800; color:#fff; letter-spacing:-0.8px; }
+.hero p { font-size:14px; color:rgba(255,255,255,0.72); margin-top:6px; }
+.install-tip { background:rgba(255,255,255,0.15); border-radius:var(--r-md); padding:10px 14px; display:flex; gap:10px; align-items:center; margin-top:18px; }
+.install-tip p { font-size:12px; color:rgba(255,255,255,0.9); line-height:1.5; }
+.install-tip strong { color:#fff; }
 
-  body {
-    background: var(--bg);
-    color: var(--label);
-    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-    min-height: 100svh;
-    -webkit-font-smoothing: antialiased;
-  }
+.scroll { padding:20px 16px; display:flex; flex-direction:column; gap:16px; max-width:480px; margin:0 auto; padding-bottom:calc(env(safe-area-inset-bottom) + 40px); }
+.sec-lbl { font-size:12px; font-weight:700; color:var(--label3); text-transform:uppercase; letter-spacing:0.8px; padding:0 4px; margin-bottom:-4px; }
 
-  .hero {
-    background: linear-gradient(135deg, #1ab5a0 0%, #0d9488 60%, #0f766e 100%);
-    padding: 52px 20px 32px;
-    position: relative;
-    overflow: hidden;
-  }
+.card { background:var(--card); border-radius:var(--r-xl); overflow:hidden; box-shadow:var(--sh); }
 
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 180px; height: 180px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.06);
-  }
+/* Upload */
+.upload-row { display:flex; align-items:center; padding:16px 18px; gap:14px; cursor:pointer; }
+.upload-row:active { background:var(--teal-light); }
+.u-icon { width:44px; height:44px; background:var(--teal-light); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.u-text { flex:1; min-width:0; }
+.u-title { font-size:15px; font-weight:600; }
+.u-sub { font-size:13px; color:var(--label3); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.u-arr { width:28px; height:28px; background:var(--teal); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; flex-shrink:0; }
+.page-wrap { border-top:1px solid var(--sep); padding:12px 18px; display:none; }
+.page-lbl { font-size:11px; font-weight:700; color:var(--label3); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+.page-pills { display:flex; gap:6px; flex-wrap:wrap; }
+.ppill { background:var(--bg); border-radius:20px; padding:5px 14px; font-size:13px; font-weight:600; color:var(--label3); cursor:pointer; }
+.ppill.sel { background:var(--teal); color:#fff; }
 
-  .hero-icon {
-    width: 48px; height: 48px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    margin-bottom: 14px;
-  }
+/* Presets */
+.pgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:16px; }
+.pchip { background:var(--bg); border-radius:var(--r-md); padding:12px 6px; text-align:center; cursor:pointer; border:2px solid transparent; }
+.pchip:active { transform:scale(0.95); }
+.pchip.sel { background:var(--teal-mid); border-color:var(--teal); }
+.pe { font-size:24px; display:block; margin-bottom:5px; }
+.pl { font-size:11px; font-weight:600; color:var(--label2); line-height:1.2; }
+.pchip.sel .pl { color:var(--teal-dark); }
 
-  .hero h1 { font-size: 28px; font-weight: 800; color: white; letter-spacing: -0.8px; }
-  .hero p { font-size: 14px; color: rgba(255,255,255,0.72); margin-top: 6px; }
+/* Text */
+.tcard { background:var(--card); border-radius:var(--r-xl); overflow:hidden; box-shadow:var(--sh); }
+.tinner { padding:14px 18px 10px; }
+textarea { width:100%; background:transparent; border:none; outline:none; font-family:'Plus Jakarta Sans',sans-serif; font-size:15px; color:var(--label); resize:none; height:68px; line-height:1.5; -webkit-appearance:none; }
+textarea::placeholder { color:var(--label3); }
+.tog-row { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; border-top:1px solid var(--sep); }
+.tog-lbl { font-size:14px; font-weight:500; color:var(--label2); }
+.ios-tog { position:relative; width:51px; height:31px; flex-shrink:0; }
+.ios-tog input { opacity:0; width:0; height:0; position:absolute; }
+.ios-tog-track { position:absolute; inset:0; background:var(--sep); border-radius:16px; transition:background .2s; cursor:pointer; }
+.ios-tog input:checked + .ios-tog-track { background:var(--teal); }
+.ios-tog-thumb { position:absolute; top:2px; left:2px; width:27px; height:27px; background:#fff; border-radius:50%; box-shadow:0 2px 4px rgba(0,0,0,0.2); transition:transform .2s; pointer-events:none; }
+.ios-tog input:checked ~ .ios-tog-thumb { transform:translateX(20px); }
 
-  .install-tip {
-    background: rgba(255,255,255,0.15);
-    border-radius: var(--radius-md);
-    padding: 10px 14px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-top: 18px;
-  }
+/* Appearance */
+.arow { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--sep); }
+.arow:last-child { border-bottom:none; }
+.albl { font-size:15px; font-weight:500; }
+.seg { display:flex; background:var(--bg); border-radius:10px; padding:3px; gap:2px; }
+.sbtn { background:transparent; border:none; border-radius:8px; padding:5px 11px; font-size:12px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; color:var(--label3); cursor:pointer; }
+.sbtn.act { background:#fff; color:var(--teal-dark); box-shadow:0 1px 4px rgba(0,0,0,0.1); }
+.cdots { display:flex; gap:10px; align-items:center; }
+.cdot { width:30px; height:30px; border-radius:50%; cursor:pointer; position:relative; flex-shrink:0; box-shadow:0 2px 6px rgba(0,0,0,0.15); }
+.cdot.sel { outline:3px solid var(--teal); outline-offset:2px; }
+.cdot.sel::after { content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; color:#fff; }
 
-  .install-tip p { font-size: 12px; color: rgba(255,255,255,0.9); margin-top: 0; line-height: 1.5; }
-  .install-tip strong { color: white; }
+/* Opacity chips */
+.ochips { display:flex; gap:6px; flex-wrap:wrap; }
+.ochip { padding:7px 12px; background:var(--bg); border:2px solid transparent; border-radius:8px; color:var(--label2); font-size:13px; font-weight:700; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; }
+.ochip.sel { background:var(--teal-mid); border-color:var(--teal); color:var(--teal-dark); }
+.ocustom-wrap { display:none; align-items:center; gap:8px; margin-top:10px; }
+.ocustom-wrap.vis { display:flex; }
+.ocustom-inp { width:72px; background:var(--bg); border:2px solid var(--teal); border-radius:8px; padding:7px 10px; font-size:14px; font-weight:700; color:var(--teal-dark); font-family:'Plus Jakarta Sans',sans-serif; text-align:center; outline:none; -webkit-appearance:none; }
+.ocustom-ok { background:var(--teal); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:13px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; }
 
-  .scroll {
-    padding: 20px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    max-width: 480px;
-    margin: 0 auto;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 40px);
-  }
+/* Preview */
+.prev-card { background:var(--card); border-radius:var(--r-xl); overflow:hidden; box-shadow:var(--sh); min-height:180px; display:flex; align-items:center; justify-content:center; }
+.prev-empty { display:flex; flex-direction:column; align-items:center; gap:10px; padding:48px 20px; }
+.prev-icon { width:60px; height:60px; background:var(--teal-light); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:28px; }
+.prev-empty p { font-size:14px; color:var(--label3); text-align:center; font-weight:500; }
+#previewCanvas { width:100%; display:block; max-height:420px; object-fit:contain; }
 
-  .section-label {
-    font-size: 12px; font-weight: 700;
-    color: var(--label3);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    padding: 0 4px;
-    margin-bottom: -4px;
-  }
+/* Buttons */
+.btn-t { background:linear-gradient(135deg,#1ab5a0,#0d9488); color:#fff; border:none; border-radius:var(--r-lg); padding:17px; font-size:16px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; width:100%; cursor:pointer; box-shadow:0 4px 16px rgba(26,181,160,0.35); }
+.btn-t:active { opacity:0.85; }
+.btn-g { background:var(--card); color:var(--teal); border:2px solid var(--teal-light); border-radius:var(--r-lg); padding:15px; font-size:15px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; width:100%; cursor:pointer; }
+.btn-g:active { background:var(--teal-light); }
+.brow { display:flex; flex-direction:column; gap:10px; }
 
-  .card {
-    background: var(--card);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .upload-row {
-    display: flex; align-items: center;
-    padding: 16px 18px; gap: 14px;
-    cursor: pointer; transition: background 0.15s;
-  }
-  .upload-row:active { background: var(--teal-light); }
-
-  .upload-icon-wrap {
-    width: 44px; height: 44px;
-    background: var(--teal-light);
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; flex-shrink: 0;
-  }
-
-  .upload-text { flex: 1; min-width: 0; }
-  .upload-title { font-size: 15px; font-weight: 600; }
-  .upload-sub { font-size: 13px; color: var(--label3); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-  .upload-arrow {
-    width: 28px; height: 28px;
-    background: var(--teal);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 16px; flex-shrink: 0;
-  }
-
-  .page-pills-wrap { border-top: 1px solid var(--sep); padding: 12px 18px; display: none; }
-  .page-pills-label { font-size: 11px; font-weight: 700; color: var(--label3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-  .page-pills { display: flex; gap: 6px; flex-wrap: wrap; }
-
-  .page-pill {
-    background: var(--bg); border-radius: 20px;
-    padding: 5px 14px; font-size: 13px; font-weight: 600;
-    color: var(--label3); cursor: pointer; transition: all 0.15s;
-  }
-  .page-pill.selected { background: var(--teal); color: white; }
-
-  .presets-grid {
-    display: grid; grid-template-columns: repeat(3,1fr);
-    gap: 10px; padding: 16px;
-  }
-
-  .preset-chip {
-    background: var(--bg); border-radius: var(--radius-md);
-    padding: 12px 6px; text-align: center;
-    cursor: pointer; transition: all 0.18s;
-    border: 2px solid transparent;
-  }
-  .preset-chip:active { transform: scale(0.95); }
-  .preset-chip.selected { background: var(--teal-mid); border-color: var(--teal); }
-
-  .chip-emoji { font-size: 24px; display: block; margin-bottom: 5px; }
-  .chip-label { font-size: 11px; font-weight: 600; color: var(--label2); line-height: 1.2; }
-  .preset-chip.selected .chip-label { color: var(--teal-dark); }
-
-  .text-card { background: var(--card); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-sm); }
-  .text-card-inner { padding: 14px 18px 10px; }
-
-  textarea {
-    width: 100%; background: transparent; border: none; outline: none;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 15px; color: var(--label); resize: none; height: 68px;
-    line-height: 1.5; -webkit-appearance: none;
-  }
-  textarea::placeholder { color: var(--label3); }
-
-  .toggle-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 18px; border-top: 1px solid var(--sep);
-  }
-  .toggle-label { font-size: 14px; font-weight: 500; color: var(--label2); }
-
-  .ios-toggle { position: relative; width: 51px; height: 31px; flex-shrink: 0; }
-  .ios-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-  .ios-toggle-track { position: absolute; inset: 0; background: var(--sep); border-radius: 16px; transition: background 0.2s; cursor: pointer; }
-  .ios-toggle input:checked + .ios-toggle-track { background: var(--teal); }
-  .ios-toggle-thumb { position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; background: white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s; pointer-events: none; }
-  .ios-toggle input:checked ~ .ios-toggle-thumb { transform: translateX(20px); }
-
-  .app-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 18px; border-bottom: 1px solid var(--sep);
-  }
-  .app-row:last-child { border-bottom: none; }
-  .app-row-label { font-size: 15px; font-weight: 500; }
-
-  .seg { display: flex; background: var(--bg); border-radius: 10px; padding: 3px; gap: 2px; }
-  .seg-btn {
-    background: transparent; border: none; border-radius: 8px;
-    padding: 5px 11px; font-size: 12px; font-weight: 600;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    color: var(--label3); cursor: pointer; transition: all 0.15s;
-  }
-  .seg-btn.active { background: white; color: var(--teal-dark); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
-
-  .color-row { display: flex; gap: 10px; align-items: center; }
-  .color-dot {
-    width: 30px; height: 30px; border-radius: 50%;
-    cursor: pointer; position: relative; flex-shrink: 0;
-    transition: transform 0.15s; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  }
-  .color-dot.selected { transform: scale(1.18); }
-  .color-dot.selected::after {
-    content: '✓'; position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 800; color: white;
-  }
-
-  .opacity-ctrl {
-    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-  }
-
-  .op-chip {
-    padding: 6px 10px;
-    background: var(--bg);
-    border: 2px solid transparent;
-    border-radius: 8px;
-    color: var(--label2); font-size: 12px; font-weight: 700;
-    cursor: pointer; transition: all 0.15s;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    -webkit-user-select: none; user-select: none;
-  }
-
-  .op-chip:active { transform: scale(0.93); }
-
-  .op-chip.selected {
-    background: var(--teal-mid);
-    border-color: var(--teal);
-    color: var(--teal-dark);
-  }
-
-  .op-custom-wrap {
-    display: none;
-    align-items: center;
-    gap: 6px;
-    margin-top: 8px;
-    width: 100%;
-  }
-
-  .op-custom-wrap.visible { display: flex; }
-
-  .op-custom-input {
-    width: 70px;
-    background: var(--bg);
-    border: 2px solid var(--teal);
-    border-radius: 8px;
-    padding: 6px 10px;
-    font-size: 14px; font-weight: 700;
-    color: var(--teal-dark);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    text-align: center;
-    outline: none;
-    -webkit-appearance: none;
-  }
-
-  .op-custom-ok {
-    background: var(--teal);
-    color: white; border: none;
-    border-radius: 8px;
-    padding: 7px 14px;
-    font-size: 13px; font-weight: 700;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    cursor: pointer;
-  }
-
-  .preview-card {
-    background: var(--card); border-radius: var(--radius-xl);
-    overflow: hidden; box-shadow: var(--shadow-sm);
-    min-height: 180px; display: flex; align-items: center; justify-content: center;
-  }
-
-  .preview-empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 48px 20px; }
-  .preview-empty-icon { width: 60px; height: 60px; background: var(--teal-light); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
-  .preview-empty p { font-size: 14px; color: var(--label3); text-align: center; font-weight: 500; }
-
-  #previewCanvas { width: 100%; display: block; max-height: 420px; object-fit: contain; }
-
-  .btn-teal {
-    background: linear-gradient(135deg, #1ab5a0, #0d9488);
-    color: white; border: none; border-radius: var(--radius-lg);
-    padding: 17px; font-size: 16px; font-weight: 700;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    width: 100%; cursor: pointer;
-    box-shadow: 0 4px 16px rgba(26,181,160,0.35);
-    transition: all 0.15s;
-  }
-  .btn-teal:active { transform: scale(0.98); opacity: 0.9; }
-
-  .btn-ghost {
-    background: var(--card); color: var(--teal);
-    border: 2px solid var(--teal-light);
-    border-radius: var(--radius-lg);
-    padding: 15px; font-size: 15px; font-weight: 700;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    width: 100%; cursor: pointer; transition: all 0.15s;
-  }
-  .btn-ghost:active { background: var(--teal-light); }
-
-  .btn-row { display: flex; flex-direction: column; gap: 10px; }
-
-  .toast {
-    position: fixed; bottom: 32px; left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--label); color: white;
-    padding: 12px 22px; border-radius: 100px;
-    font-size: 14px; font-weight: 600;
-    z-index: 999; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    white-space: nowrap;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-
-  input[type="file"] { display: none; }
+.toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--label); color:#fff; padding:12px 22px; border-radius:100px; font-size:14px; font-weight:600; z-index:999; transition:transform .3s cubic-bezier(0.34,1.56,0.64,1); white-space:nowrap; }
+.toast.show { transform:translateX(-50%) translateY(0); }
+input[type="file"] { display:none; }
 </style>
 </head>
 <body>
@@ -335,108 +127,107 @@
 
 <div class="scroll">
 
-  <p class="section-label">Documento</p>
+  <p class="sec-lbl">Documento</p>
   <div class="card">
     <div class="upload-row" onclick="document.getElementById('fileInput').click()">
-      <div class="upload-icon-wrap">📄</div>
-      <div class="upload-text">
-        <div class="upload-title">Selecionar arquivo</div>
-        <div class="upload-sub" id="fileDetail">Foto ou PDF do documento</div>
+      <div class="u-icon">📄</div>
+      <div class="u-text">
+        <div class="u-title">Selecionar arquivo</div>
+        <div class="u-sub" id="fileDetail">Foto ou PDF do documento</div>
       </div>
-      <div class="upload-arrow">›</div>
+      <div class="u-arr">›</div>
     </div>
-    <div class="page-pills-wrap" id="pdfPageWrap">
-      <div class="page-pills-label">Página</div>
+    <div class="page-wrap" id="pdfPageWrap">
+      <div class="page-lbl">Página</div>
       <div class="page-pills" id="pagePills"></div>
     </div>
   </div>
   <input type="file" id="fileInput" accept="image/*,application/pdf">
 
-  <p class="section-label">Destino</p>
+  <p class="sec-lbl">Destino</p>
   <div class="card">
-    <div class="presets-grid">
-      <div class="preset-chip" onclick="applyPreset(this,'Airbnb')"><span class="chip-emoji">🏠</span><span class="chip-label">Airbnb</span></div>
-      <div class="preset-chip" onclick="applyPreset(this,'Booking')"><span class="chip-emoji">🏨</span><span class="chip-label">Booking</span></div>
-      <div class="preset-chip" onclick="applyPreset(this,'Plano de Saúde')"><span class="chip-emoji">🏥</span><span class="chip-label">Plano de Saúde</span></div>
-      <div class="preset-chip" onclick="applyPreset(this,'Banco')"><span class="chip-emoji">🏦</span><span class="chip-label">Banco</span></div>
-      <div class="preset-chip" onclick="applyPreset(this,'Cartório')"><span class="chip-emoji">📋</span><span class="chip-label">Cartório</span></div>
-      <div class="preset-chip" onclick="applyPreset(this,'Governo')"><span class="chip-emoji">🏛️</span><span class="chip-label">Governo</span></div>
+    <div class="pgrid">
+      <div class="pchip" onclick="applyPreset(this,'Airbnb')"><span class="pe">🏠</span><span class="pl">Airbnb</span></div>
+      <div class="pchip" onclick="applyPreset(this,'Booking')"><span class="pe">🏨</span><span class="pl">Booking</span></div>
+      <div class="pchip" onclick="applyPreset(this,'Plano de Saúde')"><span class="pe">🏥</span><span class="pl">Plano de Saúde</span></div>
+      <div class="pchip" onclick="applyPreset(this,'Banco')"><span class="pe">🏦</span><span class="pl">Banco</span></div>
+      <div class="pchip" onclick="applyPreset(this,'Cartório')"><span class="pe">📋</span><span class="pl">Cartório</span></div>
+      <div class="pchip" onclick="applyPreset(this,'Governo')"><span class="pe">🏛️</span><span class="pl">Governo</span></div>
     </div>
   </div>
 
-  <p class="section-label">Texto</p>
-  <div class="text-card">
-    <div class="text-card-inner">
-      <textarea id="watermarkText" placeholder="Ex: Enviado para Airbnb SP — uso exclusivo" oninput="autoPreview()"></textarea>
+  <p class="sec-lbl">Texto</p>
+  <div class="tcard">
+    <div class="tinner">
+      <textarea id="wmText" placeholder="Ex: Enviado para Airbnb SP — uso exclusivo"></textarea>
     </div>
-    <div class="toggle-row">
-      <span class="toggle-label">Incluir data automática</span>
-      <label class="ios-toggle">
-        <input type="checkbox" id="addDate" checked onchange="autoPreview()">
-        <div class="ios-toggle-track"></div>
-        <div class="ios-toggle-thumb"></div>
+    <div class="tog-row">
+      <span class="tog-lbl">Incluir data automática</span>
+      <label class="ios-tog">
+        <input type="checkbox" id="addDate" checked>
+        <div class="ios-tog-track"></div>
+        <div class="ios-tog-thumb"></div>
       </label>
     </div>
   </div>
 
-  <p class="section-label">Aparência</p>
+  <p class="sec-lbl">Aparência</p>
   <div class="card">
-    <div class="app-row">
-      <span class="app-row-label">Posição</span>
+    <div class="arow">
+      <span class="albl">Posição</span>
       <div class="seg">
-        <button class="seg-btn active" onclick="setPos(this,'diagonal')">Diagonal</button>
-        <button class="seg-btn" onclick="setPos(this,'bottom')">Baixo</button>
-        <button class="seg-btn" onclick="setPos(this,'repeat')">Grade</button>
+        <button class="sbtn act" onclick="setVal('pos','diagonal',this)">Diagonal</button>
+        <button class="sbtn" onclick="setVal('pos','bottom',this)">Baixo</button>
+        <button class="sbtn" onclick="setVal('pos','repeat',this)">Grade</button>
       </div>
     </div>
-    <div class="app-row">
-      <span class="app-row-label">Tamanho</span>
+    <div class="arow">
+      <span class="albl">Tamanho</span>
       <div class="seg">
-        <button class="seg-btn" onclick="setSize(this,'16')">P</button>
-        <button class="seg-btn active" onclick="setSize(this,'24')">M</button>
-        <button class="seg-btn" onclick="setSize(this,'34')">G</button>
+        <button class="sbtn" onclick="setVal('size','16',this)">P</button>
+        <button class="sbtn act" onclick="setVal('size','24',this)">M</button>
+        <button class="sbtn" onclick="setVal('size','34',this)">G</button>
       </div>
     </div>
-    <div class="app-row">
-      <span class="app-row-label">Cor</span>
-      <div class="color-row">
-        <div class="color-dot selected" style="background:#ef4444" data-color="239,68,68" onclick="pickColor(this)"></div>
-        <div class="color-dot" style="background:#1a2e35" data-color="26,46,53" onclick="pickColor(this)"></div>
-        <div class="color-dot" style="background:#1ab5a0" data-color="26,181,160" onclick="pickColor(this)"></div>
-        <div class="color-dot" style="background:#3b82f6" data-color="59,130,246" onclick="pickColor(this)"></div>
-        <div class="color-dot" style="background:#d1d5db;box-shadow:inset 0 0 0 1px #bbb" data-color="160,160,160" onclick="pickColor(this)"></div>
+    <div class="arow">
+      <span class="albl">Cor</span>
+      <div class="cdots">
+        <div class="cdot sel" style="background:#ef4444" data-c="239,68,68" onclick="pickColor(this)"></div>
+        <div class="cdot" style="background:#1a2e35" data-c="26,46,53" onclick="pickColor(this)"></div>
+        <div class="cdot" style="background:#1ab5a0" data-c="26,181,160" onclick="pickColor(this)"></div>
+        <div class="cdot" style="background:#3b82f6" data-c="59,130,246" onclick="pickColor(this)"></div>
+        <div class="cdot" style="background:#d1d5db" data-c="160,160,160" onclick="pickColor(this)"></div>
       </div>
     </div>
-    <div class="app-row" style="flex-wrap:wrap; align-items:flex-start; padding-bottom:14px">
-      <span class="app-row-label" style="width:100%; margin-bottom:10px">Opacidade</span>
-      <div class="opacity-ctrl">
-        <button class="op-chip" onclick="setOpacity(this,10)">10%</button>
-        <button class="op-chip selected" onclick="setOpacity(this,30)">30%</button>
-        <button class="op-chip" onclick="setOpacity(this,50)">50%</button>
-        <button class="op-chip" onclick="setOpacity(this,70)">70%</button>
-        <button class="op-chip" id="outroBtn" onclick="toggleOutro()">Outro</button>
+    <div class="arow" style="flex-wrap:wrap; gap:10px">
+      <span class="albl" style="width:100%">Opacidade</span>
+      <div class="ochips">
+        <button class="ochip" onclick="setOpacity(10,this)">10%</button>
+        <button class="ochip sel" onclick="setOpacity(30,this)">30%</button>
+        <button class="ochip" onclick="setOpacity(50,this)">50%</button>
+        <button class="ochip" onclick="setOpacity(70,this)">70%</button>
+        <button class="ochip" id="outroBtn" onclick="toggleOutro(this)">Outro</button>
       </div>
-      <div class="op-custom-wrap" id="opCustomWrap">
-        <input type="number" class="op-custom-input" id="opCustomInput"
-          min="5" max="95" placeholder="40" inputmode="numeric">
-        <button class="op-custom-ok" onclick="applyCustomOpacity()">OK</button>
+      <div class="ocustom-wrap" id="ocWrap">
+        <input type="number" class="ocustom-inp" id="ocInput" min="5" max="95" placeholder="Ex: 45" inputmode="numeric">
+        <button class="ocustom-ok" onclick="applyCustomOp()">OK</button>
       </div>
     </div>
   </div>
 
-  <p class="section-label">Preview</p>
-  <div class="preview-card">
-    <div class="preview-empty" id="previewEmpty">
-      <div class="preview-empty-icon">🪪</div>
+  <p class="sec-lbl">Preview</p>
+  <div class="prev-card">
+    <div class="prev-empty" id="prevEmpty">
+      <div class="prev-icon">🪪</div>
       <p>Selecione um arquivo<br>para visualizar</p>
     </div>
     <canvas id="previewCanvas" style="display:none"></canvas>
   </div>
-  <button class="btn-ghost" onclick="renderPreview()" style="margin-top:-6px">🔄 Atualizar preview</button>
+  <button class="btn-g" onclick="doRender()">🔄 Atualizar preview</button>
 
-  <div class="btn-row">
-    <button class="btn-teal" onclick="shareFile()">📤 Compartilhar documento</button>
-    <button class="btn-ghost" onclick="exportImage()">💾 Salvar como imagem</button>
+  <div class="brow">
+    <button class="btn-t" onclick="shareFile()">📤 Compartilhar documento</button>
+    <button class="btn-g" onclick="exportImage()">💾 Salvar como imagem</button>
   </div>
 
 </div>
@@ -446,214 +237,248 @@
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-let currentImage = null, currentFile = null;
-let selectedColor = '239,68,68', selectedPos = 'diagonal', selectedSize = '24';
-let pdfDoc = null, selectedPage = 1;
+// ── State ──────────────────────────────────────────────
+var imageB64  = null;   // base64 string — recarregado a cada render no iOS
+var currentFile = null;
+var color  = '239,68,68';
+var pos    = 'diagonal';
+var size   = '24';
+var opVal  = 30;
 
+// ── Helpers ────────────────────────────────────────────
 function getDate() { return new Date().toLocaleDateString('pt-BR'); }
 
-function getFinalText() {
-  let t = document.getElementById('watermarkText').value.trim();
+function getText() {
+  var t = document.getElementById('wmText').value.trim();
   if (!t) t = 'DOCUMENTO PROTEGIDO';
   if (document.getElementById('addDate').checked) t += ' — ' + getDate();
   return t;
 }
 
+// ── Controls ───────────────────────────────────────────
 function applyPreset(el, service) {
-  document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('watermarkText').value = `Enviado para ${service} — uso exclusivo`;
+  document.querySelectorAll('.pchip').forEach(function(c){ c.classList.remove('sel'); });
+  el.classList.add('sel');
+  document.getElementById('wmText').value = 'Enviado para ' + service + ' — uso exclusivo';
   document.getElementById('addDate').checked = true;
-  autoPreview();
+  doRender();
 }
 
 function pickColor(el) {
-  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedColor = el.dataset.color;
-  autoPreview();
+  document.querySelectorAll('.cdot').forEach(function(d){ d.classList.remove('sel'); });
+  el.classList.add('sel');
+  color = el.getAttribute('data-c');
+  doRender();
 }
 
-function setPos(btn, pos) {
-  btn.closest('.seg').querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active'); selectedPos = pos; autoPreview();
+function setVal(key, val, btn) {
+  btn.closest('.seg').querySelectorAll('.sbtn').forEach(function(b){ b.classList.remove('act'); });
+  btn.classList.add('act');
+  if (key === 'pos') pos = val;
+  if (key === 'size') size = val;
+  doRender();
 }
 
-function setSize(btn, size) {
-  btn.closest('.seg').querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active'); selectedSize = size; autoPreview();
+function setOpacity(val, btn) {
+  document.querySelectorAll('.ochip').forEach(function(b){ b.classList.remove('sel'); });
+  btn.classList.add('sel');
+  opVal = val;
+  document.getElementById('ocWrap').classList.remove('vis');
+  doRender();
 }
 
-document.getElementById('fileInput').addEventListener('change', async function(e) {
-  const file = e.target.files[0]; if (!file) return;
+function toggleOutro(btn) {
+  document.querySelectorAll('.ochip').forEach(function(b){ b.classList.remove('sel'); });
+  btn.classList.add('sel');
+  var w = document.getElementById('ocWrap');
+  w.classList.toggle('vis');
+}
+
+function applyCustomOp() {
+  var v = parseInt(document.getElementById('ocInput').value);
+  if (isNaN(v)) return;
+  v = Math.max(5, Math.min(95, v));
+  opVal = v;
+  doRender();
+}
+
+document.getElementById('addDate').addEventListener('change', doRender);
+document.getElementById('wmText').addEventListener('input', doRender);
+
+// ── File loading ───────────────────────────────────────
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
   currentFile = file;
-  document.getElementById('fileDetail').textContent = file.name.length > 28 ? file.name.substring(0,25)+'…' : file.name;
+  var name = file.name.length > 28 ? file.name.substring(0,25) + '…' : file.name;
+  document.getElementById('fileDetail').textContent = name;
+
   if (file.type === 'application/pdf') {
-    await loadPDF(file);
+    loadPDF(file);
   } else {
     document.getElementById('pdfPageWrap').style.display = 'none';
-    const reader = new FileReader();
-    reader.onload = ev => { const img = new Image(); img.onload = () => { currentImage = img; renderPreview(); }; img.src = ev.target.result; };
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      imageB64 = ev.target.result;  // store base64
+      doRender();
+    };
     reader.readAsDataURL(file);
   }
 });
 
-async function loadPDF(file) {
-  const buf = await file.arrayBuffer();
-  pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
-  selectedPage = 1; buildPagePills(); await renderPDFPage(1);
-  document.getElementById('pdfPageWrap').style.display = 'block';
+function loadPDF(file) {
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var ab = ev.target.result;
+    pdfjsLib.getDocument({ data: ab }).promise.then(function(pdf) {
+      window._pdf = pdf;
+      buildPills(pdf.numPages);
+      renderPDFPage(1);
+      document.getElementById('pdfPageWrap').style.display = 'block';
+    });
+  };
+  reader.readAsArrayBuffer(file);
 }
 
-function buildPagePills() {
-  const wrap = document.getElementById('pagePills'); wrap.innerHTML = '';
-  for (let i = 1; i <= pdfDoc.numPages; i++) {
-    const pill = document.createElement('div');
-    pill.className = 'page-pill' + (i===1?' selected':'');
-    pill.textContent = `Pág. ${i}`;
-    pill.onclick = async () => {
-      document.querySelectorAll('.page-pill').forEach(p => p.classList.remove('selected'));
-      pill.classList.add('selected'); selectedPage = i; await renderPDFPage(i);
-    };
-    wrap.appendChild(pill);
+function buildPills(n) {
+  var wrap = document.getElementById('pagePills');
+  wrap.innerHTML = '';
+  for (var i = 1; i <= n; i++) {
+    (function(idx) {
+      var pill = document.createElement('div');
+      pill.className = 'ppill' + (idx === 1 ? ' sel' : '');
+      pill.textContent = 'Pág. ' + idx;
+      pill.onclick = function() {
+        document.querySelectorAll('.ppill').forEach(function(p){ p.classList.remove('sel'); });
+        pill.classList.add('sel');
+        renderPDFPage(idx);
+      };
+      wrap.appendChild(pill);
+    })(i);
   }
 }
 
-async function renderPDFPage(n) {
-  const page = await pdfDoc.getPage(n);
-  const vp = page.getViewport({ scale: 2 });
-  const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
-  await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
-  const img = new Image(); img.onload = () => { currentImage = img; renderPreview(); }; img.src = c.toDataURL();
+function renderPDFPage(n) {
+  window._pdf.getPage(n).then(function(page) {
+    var vp = page.getViewport({ scale: 2 });
+    var c = document.createElement('canvas');
+    c.width = vp.width; c.height = vp.height;
+    page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise.then(function() {
+      imageB64 = c.toDataURL('image/jpeg', 0.92);  // store as base64
+      doRender();
+    });
+  });
 }
 
-function renderPreview() {
-  if (!currentImage) return;
-  const canvas = document.getElementById('previewCanvas');
-  const ctx = canvas.getContext('2d');
-  const w = currentImage.naturalWidth || currentImage.width;
-  const h = currentImage.naturalHeight || currentImage.height;
-  canvas.width = w; canvas.height = h;
-  ctx.drawImage(currentImage, 0, 0, w, h);
-  applyWatermark(ctx, w, h);
-  canvas.style.display = 'block';
-  document.getElementById('previewEmpty').style.display = 'none';
+// ── Core render — loads fresh Image from base64 each time ──
+function doRender() {
+  if (!imageB64) return;
+  var img = new Image();
+  img.onload = function() {
+    var canvas = document.getElementById('previewCanvas');
+    var ctx = canvas.getContext('2d');
+    var w = img.naturalWidth;
+    var h = img.naturalHeight;
+    canvas.width = w;
+    canvas.height = h;
+    ctx.drawImage(img, 0, 0, w, h);
+    drawWatermark(ctx, w, h);
+    canvas.style.display = 'block';
+    document.getElementById('prevEmpty').style.display = 'none';
+  };
+  img.src = imageB64;
 }
 
-function applyWatermark(ctx, w, h) {
-  const text = getFinalText();
-  const opacity = opacityValue / 100;
-  const [r, g, b] = selectedColor.split(',');
-  const fs = Math.max(10, Math.round(parseInt(selectedSize) * (w / 380)));
+function drawWatermark(ctx, w, h) {
+  var text    = getText();
+  var opacity = opVal / 100;
+  var rgb     = color.split(',');
+  var fs      = Math.max(10, Math.round(parseInt(size) * (w / 380)));
 
   ctx.save();
-  ctx.globalAlpha = opacity;
-  ctx.fillStyle = `rgb(${r},${g},${b})`;
-  ctx.font = `bold ${fs}px Plus Jakarta Sans, sans-serif`;
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(0,0,0,0.18)'; ctx.shadowBlur = fs * 0.3;
+  ctx.globalAlpha   = opacity;
+  ctx.fillStyle     = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+  ctx.font          = 'bold ' + fs + 'px sans-serif';
+  ctx.textAlign     = 'center';
+  ctx.textBaseline  = 'middle';
+  ctx.shadowColor   = 'rgba(0,0,0,0.2)';
+  ctx.shadowBlur    = fs * 0.3;
 
-  if (selectedPos === 'diagonal') {
-    ctx.translate(w/2, h/2); ctx.rotate(-Math.PI/6);
+  if (pos === 'diagonal') {
+    ctx.translate(w/2, h/2);
+    ctx.rotate(-Math.PI / 6);
     ctx.fillText(text, 0, 0);
     ctx.globalAlpha = opacity * 0.3;
-    ctx.fillText(text, 0, fs*2.2); ctx.fillText(text, 0, -fs*2.2);
-  } else if (selectedPos === 'bottom') {
-    ctx.translate(w/2, h - fs*1.8);
+    ctx.fillText(text, 0,  fs * 2.2);
+    ctx.fillText(text, 0, -fs * 2.2);
+
+  } else if (pos === 'bottom') {
+    ctx.translate(w/2, h - fs * 1.8);
     ctx.globalAlpha = opacity * 0.12;
     ctx.fillRect(-w/2, -fs*1.4, w, fs*3);
-    ctx.globalAlpha = opacity; ctx.fillText(text, 0, 0);
-  } else if (selectedPos === 'repeat') {
-    ctx.rotate(-Math.PI/7);
-    const stepX = ctx.measureText(text).width + fs*4;
-    const stepY = fs*5;
-    for (let y = -h*1.5; y < h*2.5; y += stepY)
-      for (let x = -w*1.5; x < w*2.5; x += stepX)
+    ctx.globalAlpha = opacity;
+    ctx.fillText(text, 0, 0);
+
+  } else if (pos === 'repeat') {
+    ctx.rotate(-Math.PI / 7);
+    var tw   = ctx.measureText(text).width;
+    var stepX = tw + fs * 4;
+    var stepY = fs * 5;
+    for (var y = -h*1.5; y < h*2.5; y += stepY)
+      for (var x = -w*1.5; x < w*2.5; x += stepX)
         ctx.fillText(text, x, y);
   }
   ctx.restore();
 }
 
-let opacityValue = 30;
-
-function setOpacity(btn, val) {
-  document.querySelectorAll('.op-chip').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  opacityValue = val;
-  document.getElementById('opCustomWrap').classList.remove('visible');
-  autoPreview();
-}
-
-function toggleOutro() {
-  document.querySelectorAll('.op-chip').forEach(b => b.classList.remove('selected'));
-  document.getElementById('outroBtn').classList.add('selected');
-  const wrap = document.getElementById('opCustomWrap');
-  wrap.classList.toggle('visible');
-  if (wrap.classList.contains('visible')) {
-    document.getElementById('opCustomInput').focus();
-  }
-}
-
-function applyCustomOpacity() {
-  const input = document.getElementById('opCustomInput');
-  let val = parseInt(input.value);
-  if (isNaN(val)) return;
-  val = Math.max(5, Math.min(95, val));
-  input.value = val;
-  opacityValue = val;
-  autoPreview();
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('opCustomInput').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') applyCustomOpacity();
-  });
-});
-
-function autoPreview() {
-  if (!currentImage) return;
-  setTimeout(renderPreview, 0);
-}
-
-function getOutputCanvas() {
-  if (!currentImage) return null;
-  const c = document.createElement('canvas');
-  const w = currentImage.naturalWidth || currentImage.width;
-  const h = currentImage.naturalHeight || currentImage.height;
-  c.width = w; c.height = h;
-  const ctx = c.getContext('2d');
-  ctx.drawImage(currentImage, 0, 0, w, h);
-  applyWatermark(ctx, w, h);
-  return c;
+// ── Export ─────────────────────────────────────────────
+function getOutputCanvas(cb) {
+  if (!imageB64) { cb(null); return; }
+  var img = new Image();
+  img.onload = function() {
+    var c = document.createElement('canvas');
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    var ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    drawWatermark(ctx, c.width, c.height);
+    cb(c);
+  };
+  img.src = imageB64;
 }
 
 function exportImage() {
-  const canvas = getOutputCanvas();
-  if (!canvas) { showToast('Selecione um arquivo primeiro'); return; }
-  const name = currentFile ? currentFile.name.replace(/\.[^.]+$/,'') : 'documento';
-  const a = document.createElement('a');
-  a.download = `${name}_marcadagua.jpg`;
-  a.href = canvas.toDataURL('image/jpeg', 0.93);
-  a.click(); showToast('Imagem salva! ✓');
+  getOutputCanvas(function(canvas) {
+    if (!canvas) { showToast('Selecione um arquivo primeiro'); return; }
+    var name = currentFile ? currentFile.name.replace(/\.[^.]+$/,'') : 'documento';
+    var a = document.createElement('a');
+    a.download = name + '_marcadagua.jpg';
+    a.href = canvas.toDataURL('image/jpeg', 0.93);
+    a.click();
+    showToast('Imagem salva! ✓');
+  });
 }
 
-async function shareFile() {
-  const canvas = getOutputCanvas();
-  if (!canvas) { showToast('Selecione um arquivo primeiro'); return; }
-  canvas.toBlob(async blob => {
-    const name = currentFile ? currentFile.name.replace(/\.[^.]+$/,'') : 'documento';
-    const file = new File([blob], `${name}_marcadagua.jpg`, { type: 'image/jpeg' });
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: "Documento com marca d'água" }); showToast('Compartilhado! ✓'); }
-      catch(e) { if (e.name !== 'AbortError') exportImage(); }
-    } else { exportImage(); }
-  }, 'image/jpeg', 0.93);
+function shareFile() {
+  getOutputCanvas(function(canvas) {
+    if (!canvas) { showToast('Selecione um arquivo primeiro'); return; }
+    canvas.toBlob(function(blob) {
+      var name = currentFile ? currentFile.name.replace(/\.[^.]+$/,'') : 'documento';
+      var file = new File([blob], name + '_marcadagua.jpg', { type:'image/jpeg' });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files:[file] })) {
+        navigator.share({ files:[file], title:"Documento com marca d'água" })
+          .then(function(){ showToast('Compartilhado! ✓'); })
+          .catch(function(e){ if (e.name !== 'AbortError') exportImage(); });
+      } else {
+        exportImage();
+      }
+    }, 'image/jpeg', 0.93);
+  });
 }
 
 function showToast(msg) {
-  const t = document.getElementById('toast');
+  var t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(function(){ t.classList.remove('show'); }, 2500);
 }
 
 if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches)
