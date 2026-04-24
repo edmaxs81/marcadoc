@@ -4,742 +4,738 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="MarcaDoc">
-<meta name="theme-color" content="#0a0a0f">
-<title>MarcaDoc — Marca d'água em documentos</title>
+<meta name="theme-color" content="#f2f2f7">
+<title>MarcaDoc</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
   :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --border: #1e1e2e;
-    --accent: #e8c547;
-    --accent2: #ff6b35;
-    --text: #f0ede8;
-    --muted: #6b6880;
-    --success: #4ade80;
-    --radius: 12px;
+    --bg: #f2f2f7;
+    --bg2: #ffffff;
+    --bg3: #e5e5ea;
+    --label: #000000;
+    --label2: #3c3c43;
+    --label3: #8e8e93;
+    --blue: #007aff;
+    --blue-light: rgba(0,122,255,0.10);
+    --red: #ff3b30;
+    --green: #34c759;
+    --separator: rgba(60,60,67,0.12);
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   body {
     background: var(--bg);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
+    color: var(--label);
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     min-height: 100svh;
-    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* Grain overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 999;
-    opacity: 0.6;
+  /* Navigation bar */
+  .nav {
+    background: rgba(242,242,247,0.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 12px 20px 10px;
+    border-bottom: 0.5px solid var(--separator);
   }
 
-  header {
-    padding: 24px 20px 0;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .nav-title {
+    font-size: 17px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: -0.3px;
   }
 
-  .logo-mark {
-    width: 36px;
-    height: 36px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Space Mono', monospace;
-    font-size: 14px;
-    font-weight: 700;
-    color: #000;
-    flex-shrink: 0;
+  .nav-sub {
+    font-size: 12px;
+    color: var(--label3);
+    text-align: center;
+    margin-top: 1px;
   }
 
-  header h1 {
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-  }
-
-  header span {
-    color: var(--accent);
-  }
-
-  .tagline {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-    margin-left: 48px;
-    margin-top: -2px;
-    padding-bottom: 20px;
-  }
-
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 0 20px;
-  }
-
-  main {
-    padding: 20px;
+  /* Scroll container */
+  .scroll {
+    padding: 20px 16px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    max-width: 600px;
+    gap: 20px;
+    max-width: 480px;
     margin: 0 auto;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 32px);
   }
 
-  /* Step indicators */
-  .steps {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .step {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-  }
-
-  .step.active { color: var(--accent); }
-  .step.done { color: var(--success); }
-
-  .step-num {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 1px solid currentColor;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    flex-shrink: 0;
-  }
-
-  .step-sep {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  /* Upload zone */
-  .upload-zone {
-    border: 1.5px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 32px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background: var(--surface);
-    position: relative;
+  /* Section group (iOS grouped style) */
+  .group {
+    background: var(--bg2);
+    border-radius: var(--radius-lg);
     overflow: hidden;
   }
 
-  .upload-zone.dragover {
-    border-color: var(--accent);
-    background: rgba(232, 197, 71, 0.05);
-  }
-
-  .upload-zone.has-file {
-    border-color: var(--success);
-    border-style: solid;
-  }
-
-  .upload-icon {
-    font-size: 36px;
-    margin-bottom: 10px;
-    display: block;
-  }
-
-  .upload-zone h2 {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-
-  .upload-zone p {
-    font-size: 12px;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-  }
-
-  .file-info {
-    display: none;
-    align-items: center;
-    gap: 10px;
-    background: rgba(74, 222, 128, 0.08);
-    border-radius: 8px;
-    padding: 10px 14px;
-    margin-top: 12px;
-    text-align: left;
-  }
-
-  .file-info.visible { display: flex; }
-
-  .file-icon { font-size: 20px; }
-
-  .file-name {
-    font-size: 12px;
-    font-family: 'Space Mono', monospace;
-    color: var(--success);
-    word-break: break-all;
-    flex: 1;
-  }
-
-  /* Section label */
-  .section-label {
-    font-size: 10px;
-    font-family: 'Space Mono', monospace;
-    color: var(--muted);
+  .group-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--label3);
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: -8px;
+    letter-spacing: 0.4px;
+    padding: 0 4px;
+    margin-bottom: 8px;
   }
 
-  /* Presets */
-  .presets-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .preset-btn {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 12px;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.15s ease;
-    color: var(--text);
-  }
-
-  .preset-btn:active, .preset-btn.selected {
-    border-color: var(--accent);
-    background: rgba(232, 197, 71, 0.08);
-  }
-
-  .preset-label {
-    font-size: 10px;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-    display: block;
-    margin-bottom: 2px;
-  }
-
-  .preset-value {
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  /* Input group */
-  .input-group {
+  /* Row inside group */
+  .row {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    align-items: center;
+    padding: 13px 16px;
+    gap: 12px;
+    border-bottom: 0.5px solid var(--separator);
+    min-height: 52px;
   }
 
-  .input-label {
-    font-size: 12px;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-  }
+  .row:last-child { border-bottom: none; }
 
-  input[type="text"], textarea {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 14px;
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    font-size: 14px;
-    width: 100%;
-    outline: none;
-    transition: border-color 0.15s;
-    -webkit-appearance: none;
-  }
-
-  input[type="text"]:focus, textarea:focus {
-    border-color: var(--accent);
-  }
-
-  textarea {
-    resize: none;
-    height: 64px;
-  }
-
-  /* Options row */
-  .options-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  select {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 14px;
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    width: 100%;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 32px;
-  }
-
-  /* Color picker row */
-  .color-row {
+  .row-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
     display: flex;
-    gap: 8px;
-  }
-
-  .color-opt {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: all 0.15s;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
     flex-shrink: 0;
   }
 
-  .color-opt.selected {
-    border-color: var(--accent);
-    transform: scale(1.1);
+  .icon-blue { background: var(--blue); }
+  .icon-orange { background: #ff9500; }
+  .icon-green { background: var(--green); }
+  .icon-purple { background: #af52de; }
+  .icon-red { background: var(--red); }
+  .icon-teal { background: #32ade6; }
+
+  .row-content { flex: 1; min-width: 0; }
+
+  .row-title {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: -0.2px;
   }
 
-  /* Opacity slider */
-  .slider-row {
+  .row-detail {
+    font-size: 13px;
+    color: var(--label3);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .row-chevron {
+    color: var(--label3);
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  /* Upload tap area */
+  .upload-tap {
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .upload-tap:active { opacity: 0.6; }
+
+  .file-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--blue-light);
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-top: 3px;
+  }
+
+  /* Presets grid */
+  .presets-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .preset-chip {
+    background: var(--bg);
+    border-radius: var(--radius-md);
+    padding: 11px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1.5px solid transparent;
+  }
+
+  .preset-chip:active { transform: scale(0.96); }
+
+  .preset-chip.selected {
+    background: var(--blue-light);
+    border-color: var(--blue);
+  }
+
+  .preset-chip .chip-emoji { font-size: 22px; display: block; margin-bottom: 4px; }
+
+  .preset-chip .chip-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--label2);
+    line-height: 1.2;
+  }
+
+  .preset-chip.selected .chip-label { color: var(--blue); }
+
+  /* Text area */
+  .text-area-wrap { padding: 12px 16px; }
+
+  textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    font-size: 15px;
+    color: var(--label);
+    resize: none;
+    height: 70px;
+    line-height: 1.5;
+    -webkit-appearance: none;
+  }
+
+  textarea::placeholder { color: var(--label3); }
+
+  /* Toggle row */
+  .toggle-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+    padding: 13px 16px;
+    border-bottom: 0.5px solid var(--separator);
+  }
+
+  .toggle-label { font-size: 16px; }
+
+  /* iOS toggle */
+  .ios-toggle {
+    position: relative;
+    width: 51px;
+    height: 31px;
+    flex-shrink: 0;
+  }
+
+  .ios-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+  .ios-toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--bg3);
+    border-radius: 16px;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .ios-toggle input:checked + .ios-toggle-track { background: var(--green); }
+
+  .ios-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 27px;
+    height: 27px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+    transition: transform 0.2s;
+    pointer-events: none;
+  }
+
+  .ios-toggle input:checked ~ .ios-toggle-thumb { transform: translateX(20px); }
+
+  /* Picker row */
+  .picker-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 16px;
+    border-bottom: 0.5px solid var(--separator);
+  }
+
+  .picker-row:last-child { border-bottom: none; }
+
+  .picker-label { font-size: 16px; }
+
+  .seg-control {
+    display: flex;
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .seg-btn {
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--label2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .seg-btn.active {
+    background: white;
+    color: var(--label);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+
+  /* Color dots */
+  .color-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .color-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.15s;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .color-dot.selected::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .color-dot[data-color="0,0,0"].selected::after { color: white; }
+
+  /* Slider */
+  .slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   input[type="range"] {
     flex: 1;
     -webkit-appearance: none;
     height: 4px;
-    background: var(--border);
+    background: var(--bg3);
     border-radius: 2px;
     outline: none;
   }
 
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    background: var(--accent);
+    background: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     cursor: pointer;
   }
 
   .slider-val {
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    color: var(--accent);
-    min-width: 32px;
+    font-size: 13px;
+    color: var(--label3);
+    min-width: 34px;
     text-align: right;
+    font-weight: 500;
   }
 
   /* Preview */
-  .preview-box {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
+  .preview-wrap {
+    background: var(--bg2);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    position: relative;
-    min-height: 200px;
+    min-height: 180px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  #previewCanvas {
-    max-width: 100%;
-    max-height: 360px;
-    display: block;
-    border-radius: 8px;
+  .preview-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 40px 20px;
   }
 
-  .preview-placeholder {
-    color: var(--muted);
-    font-size: 12px;
-    font-family: 'Space Mono', monospace;
-    text-align: center;
-    padding: 20px;
+  .preview-empty-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--bg3);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
   }
 
-  /* CTA button */
-  .btn-primary {
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: var(--radius);
-    padding: 16px;
-    font-family: 'Syne', sans-serif;
+  .preview-empty p {
     font-size: 15px;
-    font-weight: 800;
+    color: var(--label3);
+    text-align: center;
+  }
+
+  #previewCanvas {
+    width: 100%;
+    display: block;
+    max-height: 400px;
+    object-fit: contain;
+  }
+
+  /* PDF page pills */
+  .page-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 10px 16px;
+  }
+
+  .page-pill {
+    background: var(--bg);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--label3);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .page-pill.selected {
+    background: var(--blue);
+    color: white;
+  }
+
+  /* Action buttons */
+  .btn-blue {
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
     width: 100%;
     cursor: pointer;
     letter-spacing: -0.3px;
-    transition: all 0.15s;
-    position: relative;
-    overflow: hidden;
+    transition: opacity 0.15s;
   }
 
-  .btn-primary:active {
-    transform: scale(0.98);
-    background: #d4b33e;
-  }
+  .btn-blue:active { opacity: 0.75; }
+  .btn-blue:disabled { background: var(--bg3); color: var(--label3); }
 
-  .btn-primary:disabled {
-    background: var(--border);
-    color: var(--muted);
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .btn-secondary {
-    background: transparent;
-    color: var(--text);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px;
-    font-family: 'Syne', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
+  .btn-outline {
+    background: var(--bg2);
+    color: var(--blue);
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    font-size: 17px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
     width: 100%;
     cursor: pointer;
-    transition: all 0.15s;
+    letter-spacing: -0.3px;
+    transition: opacity 0.15s;
   }
 
-  .btn-secondary:active {
-    border-color: var(--accent);
-    color: var(--accent);
+  .btn-outline:active { opacity: 0.6; }
+
+  .btn-row { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Install banner */
+  .install-tip {
+    background: var(--bg2);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
   }
 
-  /* Action row */
-  .action-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
+  .install-tip-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+
+  .install-tip-text { font-size: 13px; color: var(--label3); line-height: 1.5; }
+
+  .install-tip-text strong { color: var(--label2); }
 
   /* Toast */
   .toast {
     position: fixed;
-    bottom: 24px;
+    bottom: 32px;
     left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--success);
-    color: #000;
-    padding: 12px 20px;
+    transform: translateX(-50%) translateY(80px);
+    background: rgba(0,0,0,0.78);
+    backdrop-filter: blur(12px);
+    color: white;
+    padding: 11px 20px;
     border-radius: 100px;
-    font-size: 13px;
-    font-weight: 700;
-    font-family: 'Space Mono', monospace;
-    transition: transform 0.3s ease;
-    z-index: 1000;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 999;
+    transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
     white-space: nowrap;
   }
 
-  .toast.show {
-    transform: translateX(-50%) translateY(0);
-  }
-
-  /* Install banner */
-  .install-banner {
-    background: rgba(232, 197, 71, 0.08);
-    border: 1px solid rgba(232, 197, 71, 0.2);
-    border-radius: var(--radius);
-    padding: 12px 16px;
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-  }
-
-  .install-banner-icon { font-size: 18px; flex-shrink: 0; }
-
-  .install-banner p {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-    line-height: 1.6;
-  }
-
-  .install-banner strong { color: var(--accent); }
-
-  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
 
   input[type="file"] { display: none; }
 
-  /* PDF page selector */
-  .page-selector {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .page-tag {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-family: 'Space Mono', monospace;
-    cursor: pointer;
-    color: var(--muted);
-    transition: all 0.15s;
-  }
-
-  .page-tag.selected {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  .page-selector-label {
-    font-size: 11px;
-    font-family: 'Space Mono', monospace;
-    color: var(--muted);
+  /* Separator label inside group */
+  .inner-label {
+    font-size: 13px;
+    color: var(--label3);
+    padding: 10px 16px 2px;
+    font-weight: 500;
   }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo-mark">M§</div>
+<div class="nav">
+  <div class="nav-title">MarcaDoc</div>
+  <div class="nav-sub">Proteção de documentos</div>
+</div>
+
+<div class="scroll">
+
+  <!-- Install tip -->
+  <div class="install-tip" id="installTip">
+    <span class="install-tip-icon">📲</span>
+    <p class="install-tip-text">Para usar como app: toque em <strong>Compartilhar ↑</strong> no Safari e depois <strong>"Adicionar à Tela de Início"</strong></p>
+  </div>
+
+  <!-- 1. Documento -->
   <div>
-    <h1>Marca<span>Doc</span></h1>
-  </div>
-</header>
-<p class="tagline">// proteção de documentos pessoais</p>
-<div class="divider"></div>
-
-<main>
-
-  <!-- Install hint (iOS) -->
-  <div class="install-banner" id="installBanner">
-    <span class="install-banner-icon">📲</span>
-    <p>Para usar como app: toque em <strong>Compartilhar ↑</strong> e depois <strong>"Adicionar à Tela de Início"</strong></p>
-  </div>
-
-  <!-- Step indicators -->
-  <div class="steps">
-    <div class="step active" id="s1"><div class="step-num">1</div><span>Arquivo</span></div>
-    <div class="step-sep"></div>
-    <div class="step" id="s2"><div class="step-num">2</div><span>Texto</span></div>
-    <div class="step-sep"></div>
-    <div class="step" id="s3"><div class="step-num">3</div><span>Exportar</span></div>
-  </div>
-
-  <!-- Upload -->
-  <div>
-    <p class="section-label">01 — documento</p>
-  </div>
-
-  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-    <span class="upload-icon">🪪</span>
-    <h2>Toque para selecionar</h2>
-    <p>Foto ou PDF do documento</p>
-    <div class="file-info" id="fileInfo">
-      <span class="file-icon" id="fileIcon">📄</span>
-      <span class="file-name" id="fileName">—</span>
+    <p class="group-label">Documento</p>
+    <div class="group">
+      <div class="row upload-tap" onclick="document.getElementById('fileInput').click()">
+        <div class="row-icon icon-blue">📄</div>
+        <div class="row-content">
+          <div class="row-title">Selecionar arquivo</div>
+          <div id="fileDetail" class="row-detail">Foto ou PDF</div>
+        </div>
+        <span class="row-chevron">›</span>
+      </div>
+      <div id="pdfPageWrap" style="display:none">
+        <p class="inner-label">Página</p>
+        <div class="page-pills" id="pagePills"></div>
+      </div>
     </div>
   </div>
   <input type="file" id="fileInput" accept="image/*,application/pdf">
 
-  <!-- PDF page selector (hidden by default) -->
-  <div id="pdfPageWrapper" style="display:none">
-    <p class="input-label">Página do PDF para marca d'água:</p>
-    <div class="page-selector" id="pageSelector"></div>
-  </div>
-
-  <!-- Presets -->
+  <!-- 2. Destino -->
   <div>
-    <p class="section-label">02 — destino (presets)</p>
+    <p class="group-label">Destino</p>
+    <div class="group">
+      <div class="presets-grid">
+        <div class="preset-chip" onclick="applyPreset(this,'Airbnb')">
+          <span class="chip-emoji">🏠</span>
+          <span class="chip-label">Airbnb</span>
+        </div>
+        <div class="preset-chip" onclick="applyPreset(this,'Booking')">
+          <span class="chip-emoji">🏨</span>
+          <span class="chip-label">Booking</span>
+        </div>
+        <div class="preset-chip" onclick="applyPreset(this,'Plano de Saúde')">
+          <span class="chip-emoji">🏥</span>
+          <span class="chip-label">Plano de Saúde</span>
+        </div>
+        <div class="preset-chip" onclick="applyPreset(this,'Banco')">
+          <span class="chip-emoji">🏦</span>
+          <span class="chip-label">Banco</span>
+        </div>
+        <div class="preset-chip" onclick="applyPreset(this,'Cartório')">
+          <span class="chip-emoji">📋</span>
+          <span class="chip-label">Cartório</span>
+        </div>
+        <div class="preset-chip" onclick="applyPreset(this,'Governo')">
+          <span class="chip-emoji">🏛️</span>
+          <span class="chip-label">Governo</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="presets-grid">
-    <button class="preset-btn" onclick="applyPreset(this, 'Airbnb')">
-      <span class="preset-label">plataforma</span>
-      <span class="preset-value">🏠 Airbnb</span>
-    </button>
-    <button class="preset-btn" onclick="applyPreset(this, 'Booking')">
-      <span class="preset-label">plataforma</span>
-      <span class="preset-value">🏨 Booking</span>
-    </button>
-    <button class="preset-btn" onclick="applyPreset(this, 'iFood')">
-      <span class="preset-label">serviço</span>
-      <span class="preset-value">🍔 iFood</span>
-    </button>
-    <button class="preset-btn" onclick="applyPreset(this, 'Banco')">
-      <span class="preset-label">uso</span>
-      <span class="preset-value">🏦 Banco</span>
-    </button>
-    <button class="preset-btn" onclick="applyPreset(this, 'Cartório')">
-      <span class="preset-label">uso</span>
-      <span class="preset-value">📋 Cartório</span>
-    </button>
-    <button class="preset-btn" onclick="applyPreset(this, 'Governo')">
-      <span class="preset-label">uso</span>
-      <span class="preset-value">🏛️ Governo</span>
-    </button>
-  </div>
-
-  <!-- Custom text -->
-  <div class="input-group">
-    <label class="input-label">Texto da marca d'água</label>
-    <textarea id="watermarkText" placeholder="Ex: Enviado para Airbnb SP — uso exclusivo"></textarea>
-  </div>
-
-  <!-- Date toggle -->
-  <div style="display:flex;align-items:center;gap:10px">
-    <input type="checkbox" id="addDate" checked style="width:16px;height:16px;accent-color:var(--accent)">
-    <label for="addDate" style="font-size:12px;font-family:'Space Mono',monospace;color:var(--muted);cursor:pointer">
-      Incluir data automática
-    </label>
-  </div>
-
-  <!-- Options -->
+  <!-- 3. Texto -->
   <div>
-    <p class="section-label">03 — aparência</p>
-  </div>
-
-  <div class="options-row">
-    <div class="input-group">
-      <label class="input-label">Posição</label>
-      <select id="position">
-        <option value="diagonal">Diagonal (centro)</option>
-        <option value="top">Topo</option>
-        <option value="bottom">Rodapé</option>
-        <option value="repeat">Repetido</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label class="input-label">Tamanho</label>
-      <select id="fontSize">
-        <option value="18">Pequeno</option>
-        <option value="24" selected>Médio</option>
-        <option value="32">Grande</option>
-        <option value="42">Extra grande</option>
-      </select>
+    <p class="group-label">Texto da marca d'água</p>
+    <div class="group">
+      <div class="text-area-wrap">
+        <textarea id="watermarkText" placeholder="Ex: Enviado para Airbnb SP — uso exclusivo" oninput="autoPreview()"></textarea>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Incluir data</span>
+        <label class="ios-toggle">
+          <input type="checkbox" id="addDate" checked onchange="autoPreview()">
+          <div class="ios-toggle-track"></div>
+          <div class="ios-toggle-thumb"></div>
+        </label>
+      </div>
     </div>
   </div>
 
-  <!-- Color -->
-  <div class="input-group">
-    <label class="input-label">Cor da marca d'água</label>
-    <div class="color-row">
-      <div class="color-opt selected" style="background:rgba(255,0,0,0.55)" data-color="255,0,0" onclick="selectColor(this)"></div>
-      <div class="color-opt" style="background:rgba(0,0,0,0.5)" data-color="0,0,0" onclick="selectColor(this)"></div>
-      <div class="color-opt" style="background:rgba(0,80,200,0.5)" data-color="0,80,200" onclick="selectColor(this)"></div>
-      <div class="color-opt" style="background:rgba(232,197,71,0.6)" data-color="232,197,71" onclick="selectColor(this)"></div>
-      <div class="color-opt" style="background:rgba(255,255,255,0.6);border:1px solid #333" data-color="255,255,255" onclick="selectColor(this)"></div>
-    </div>
-  </div>
-
-  <!-- Opacity -->
-  <div class="input-group">
-    <label class="input-label">Opacidade</label>
-    <div class="slider-row">
-      <input type="range" id="opacity" min="10" max="80" value="40" oninput="updateOpacity(this)">
-      <span class="slider-val" id="opacityVal">40%</span>
-    </div>
-  </div>
-
-  <!-- Preview -->
+  <!-- 4. Aparência -->
   <div>
-    <p class="section-label">04 — preview</p>
-  </div>
+    <p class="group-label">Aparência</p>
+    <div class="group">
 
-  <div class="preview-box" id="previewBox">
-    <div class="preview-placeholder" id="previewPlaceholder">
-      Selecione um arquivo para visualizar
+      <!-- Posição -->
+      <div class="picker-row">
+        <span class="picker-label">Posição</span>
+        <div class="seg-control">
+          <button class="seg-btn active" onclick="setPos(this,'diagonal')">Diagonal</button>
+          <button class="seg-btn" onclick="setPos(this,'bottom')">Baixo</button>
+          <button class="seg-btn" onclick="setPos(this,'repeat')">Grade</button>
+        </div>
+      </div>
+
+      <!-- Tamanho -->
+      <div class="picker-row">
+        <span class="picker-label">Tamanho</span>
+        <div class="seg-control">
+          <button class="seg-btn" onclick="setSize(this,'16')">P</button>
+          <button class="seg-btn active" onclick="setSize(this,'24')">M</button>
+          <button class="seg-btn" onclick="setSize(this,'34')">G</button>
+        </div>
+      </div>
+
+      <!-- Cor -->
+      <div class="picker-row" style="border-bottom: 0.5px solid var(--separator)">
+        <span class="picker-label">Cor</span>
+        <div class="color-row">
+          <div class="color-dot selected" style="background:rgba(255,0,0,0.7)" data-color="255,0,0" onclick="pickColor(this)"></div>
+          <div class="color-dot" style="background:rgba(0,0,0,0.65)" data-color="0,0,0" onclick="pickColor(this)"></div>
+          <div class="color-dot" style="background:rgba(0,122,255,0.7)" data-color="0,122,255" onclick="pickColor(this)"></div>
+          <div class="color-dot" style="background:rgba(52,199,89,0.7)" data-color="52,199,89" onclick="pickColor(this)"></div>
+          <div class="color-dot" style="background:#ccc;border:1px solid #bbb" data-color="180,180,180" onclick="pickColor(this)"></div>
+        </div>
+      </div>
+
+      <!-- Opacidade -->
+      <div class="picker-row" style="border-bottom:none">
+        <span class="picker-label">Opacidade</span>
+        <div class="slider-wrap" style="width:55%">
+          <input type="range" id="opacity" min="15" max="75" value="38" oninput="updateOpacity(this)">
+          <span class="slider-val" id="opacityVal">38%</span>
+        </div>
+      </div>
+
     </div>
-    <canvas id="previewCanvas" style="display:none"></canvas>
   </div>
 
-  <button class="btn-secondary" onclick="renderPreview()" id="previewBtn">
-    🔄 Atualizar preview
-  </button>
-
-  <!-- Export -->
+  <!-- 5. Preview -->
   <div>
-    <p class="section-label">05 — exportar</p>
+    <p class="group-label">Preview</p>
+    <div class="preview-wrap" id="previewWrap">
+      <div class="preview-empty" id="previewEmpty">
+        <div class="preview-empty-icon">🪪</div>
+        <p>Selecione um arquivo<br>para visualizar</p>
+      </div>
+      <canvas id="previewCanvas" style="display:none"></canvas>
+    </div>
   </div>
 
-  <div class="action-row">
-    <button class="btn-primary" onclick="exportImage()" id="exportImgBtn">
-      💾 Salvar Imagem
-    </button>
-    <button class="btn-primary" style="background:var(--accent2)" onclick="shareFile()" id="shareBtn">
-      📤 Compartilhar
-    </button>
+  <!-- 6. Exportar -->
+  <div class="btn-row">
+    <button class="btn-blue" onclick="shareFile()">Compartilhar documento</button>
+    <button class="btn-outline" onclick="exportImage()">Salvar como imagem</button>
   </div>
 
-  <div class="pb-safe" style="height:16px"></div>
-</main>
+</div><!-- end scroll -->
 
-<div class="toast" id="toast">✓ Arquivo salvo!</div>
+<div class="toast" id="toast"></div>
 
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-let currentFile = null;
 let currentImage = null;
+let currentFile = null;
 let selectedColor = '255,0,0';
+let selectedPos = 'diagonal';
+let selectedSize = '24';
 let pdfDoc = null;
 let selectedPage = 1;
-let totalPages = 0;
 
-// Date stamp
-function getDateStamp() {
-  const d = new Date();
-  return d.toLocaleDateString('pt-BR');
+function getDate() {
+  return new Date().toLocaleDateString('pt-BR');
 }
 
-function applyPreset(btn, service) {
-  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  const date = getDateStamp();
-  document.getElementById('watermarkText').value = `Enviado para ${service} — ${date} — uso exclusivo`;
-  document.getElementById('addDate').checked = false;
-  renderPreview();
+function getFinalText() {
+  let t = document.getElementById('watermarkText').value.trim();
+  if (!t) t = 'DOCUMENTO PROTEGIDO';
+  if (document.getElementById('addDate').checked) t += ' — ' + getDate();
+  return t;
 }
 
-function selectColor(el) {
-  document.querySelectorAll('.color-opt').forEach(e => e.classList.remove('selected'));
+function applyPreset(el, service) {
+  document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('watermarkText').value = `Enviado para ${service} — uso exclusivo`;
+  document.getElementById('addDate').checked = true;
+  autoPreview();
+}
+
+function pickColor(el) {
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
   el.classList.add('selected');
   selectedColor = el.dataset.color;
-  renderPreview();
+  autoPreview();
+}
+
+function setPos(btn, pos) {
+  document.querySelectorAll('.seg-control')[0].querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedPos = pos;
+  autoPreview();
+}
+
+function setSize(btn, size) {
+  document.querySelectorAll('.seg-control')[1].querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedSize = size;
+  autoPreview();
 }
 
 function updateOpacity(el) {
   document.getElementById('opacityVal').textContent = el.value + '%';
-  renderPreview();
+  autoPreview();
 }
 
 // File input
@@ -747,233 +743,168 @@ document.getElementById('fileInput').addEventListener('change', async function(e
   const file = e.target.files[0];
   if (!file) return;
   currentFile = file;
-  updateFileInfo(file);
+  const name = file.name.length > 28 ? file.name.substring(0,25) + '…' : file.name;
+  document.getElementById('fileDetail').textContent = name;
 
   if (file.type === 'application/pdf') {
     await loadPDF(file);
   } else {
-    document.getElementById('pdfPageWrapper').style.display = 'none';
+    document.getElementById('pdfPageWrap').style.display = 'none';
     const reader = new FileReader();
     reader.onload = function(ev) {
       const img = new Image();
-      img.onload = function() {
-        currentImage = img;
-        renderPreview();
-        updateStep(2);
-      };
+      img.onload = function() { currentImage = img; renderPreview(); };
       img.src = ev.target.result;
     };
     reader.readAsDataURL(file);
   }
 });
 
-function updateFileInfo(file) {
-  const isImg = file.type.startsWith('image/');
-  document.getElementById('fileIcon').textContent = isImg ? '🖼️' : '📄';
-  document.getElementById('fileName').textContent = file.name;
-  document.getElementById('fileInfo').classList.add('visible');
-  document.getElementById('uploadZone').classList.add('has-file');
-}
-
 async function loadPDF(file) {
-  const arrayBuffer = await file.arrayBuffer();
-  pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  totalPages = pdfDoc.numPages;
+  const buf = await file.arrayBuffer();
+  pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
   selectedPage = 1;
-  buildPageSelector();
-  await renderPDFPage(selectedPage);
-  document.getElementById('pdfPageWrapper').style.display = 'block';
-  updateStep(2);
+  buildPagePills();
+  await renderPDFPage(1);
+  document.getElementById('pdfPageWrap').style.display = 'block';
 }
 
-function buildPageSelector() {
-  const sel = document.getElementById('pageSelector');
-  sel.innerHTML = '<span class="page-selector-label">Página:</span>';
-  for (let i = 1; i <= totalPages; i++) {
-    const tag = document.createElement('div');
-    tag.className = 'page-tag' + (i === 1 ? ' selected' : '');
-    tag.textContent = i;
-    tag.onclick = async () => {
-      document.querySelectorAll('.page-tag').forEach(t => t.classList.remove('selected'));
-      tag.classList.add('selected');
+function buildPagePills() {
+  const wrap = document.getElementById('pagePills');
+  wrap.innerHTML = '';
+  for (let i = 1; i <= pdfDoc.numPages; i++) {
+    const pill = document.createElement('div');
+    pill.className = 'page-pill' + (i === 1 ? ' selected' : '');
+    pill.textContent = `Pág. ${i}`;
+    pill.onclick = async () => {
+      document.querySelectorAll('.page-pill').forEach(p => p.classList.remove('selected'));
+      pill.classList.add('selected');
       selectedPage = i;
       await renderPDFPage(i);
     };
-    sel.appendChild(tag);
+    wrap.appendChild(pill);
   }
 }
 
-async function renderPDFPage(pageNum) {
-  const page = await pdfDoc.getPage(pageNum);
-  const viewport = page.getViewport({ scale: 1.5 });
-  const canvas = document.createElement('canvas');
-  canvas.width = viewport.width;
-  canvas.height = viewport.height;
-  const ctx = canvas.getContext('2d');
-  await page.render({ canvasContext: ctx, viewport }).promise;
+async function renderPDFPage(n) {
+  const page = await pdfDoc.getPage(n);
+  const vp = page.getViewport({ scale: 2 });
+  const c = document.createElement('canvas');
+  c.width = vp.width; c.height = vp.height;
+  await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
   const img = new Image();
-  img.onload = function() {
-    currentImage = img;
-    renderPreview();
-  };
-  img.src = canvas.toDataURL();
-}
-
-function getFinalText() {
-  let text = document.getElementById('watermarkText').value.trim();
-  if (!text) text = 'DOCUMENTO PROTEGIDO';
-  if (document.getElementById('addDate').checked) {
-    text += ' — ' + getDateStamp();
-  }
-  return text;
+  img.onload = function() { currentImage = img; renderPreview(); };
+  img.src = c.toDataURL();
 }
 
 function renderPreview() {
   if (!currentImage) return;
-
   const canvas = document.getElementById('previewCanvas');
   const ctx = canvas.getContext('2d');
   const w = currentImage.naturalWidth || currentImage.width;
   const h = currentImage.naturalHeight || currentImage.height;
-  canvas.width = w;
-  canvas.height = h;
-
+  canvas.width = w; canvas.height = h;
   ctx.drawImage(currentImage, 0, 0, w, h);
   applyWatermark(ctx, w, h);
-
   canvas.style.display = 'block';
-  document.getElementById('previewPlaceholder').style.display = 'none';
-  updateStep(3);
+  document.getElementById('previewEmpty').style.display = 'none';
 }
 
 function applyWatermark(ctx, w, h) {
   const text = getFinalText();
-  const opacity = document.getElementById('opacity').value / 100;
-  const fontSize = parseInt(document.getElementById('fontSize').value);
-  const position = document.getElementById('position').value;
+  const opacity = parseInt(document.getElementById('opacity').value) / 100;
+  const baseSize = parseInt(selectedSize);
   const [r, g, b] = selectedColor.split(',');
+  const fs = Math.max(10, Math.round(baseSize * (w / 380)));
 
   ctx.save();
   ctx.globalAlpha = opacity;
   ctx.fillStyle = `rgb(${r},${g},${b})`;
-  ctx.strokeStyle = `rgba(0,0,0,${opacity * 0.3})`;
-  ctx.lineWidth = fontSize * 0.04;
-
-  const scaledFont = Math.max(12, Math.round(fontSize * (w / 400)));
-  ctx.font = `bold ${scaledFont}px Arial, sans-serif`;
+  ctx.font = `bold ${fs}px -apple-system, DM Sans, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
-  if (position === 'diagonal') {
+  // Subtle shadow for readability
+  ctx.shadowColor = opacity > 0.4 ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.15)';
+  ctx.shadowBlur = fs * 0.4;
+
+  if (selectedPos === 'diagonal') {
     ctx.translate(w / 2, h / 2);
     ctx.rotate(-Math.PI / 6);
-    ctx.strokeText(text, 0, 0);
     ctx.fillText(text, 0, 0);
-    // secondary line
-    ctx.globalAlpha = opacity * 0.5;
-    ctx.fillText(text, 0, scaledFont * 1.8);
-    ctx.fillText(text, 0, -scaledFont * 1.8);
-  } else if (position === 'top') {
-    ctx.translate(w / 2, scaledFont * 1.5);
-    ctx.strokeText(text, 0, 0);
+    ctx.globalAlpha = opacity * 0.35;
+    ctx.fillText(text, 0, fs * 2.2);
+    ctx.fillText(text, 0, -fs * 2.2);
+  } else if (selectedPos === 'bottom') {
+    ctx.translate(w / 2, h - fs * 1.8);
+    // semi-transparent bar
+    ctx.globalAlpha = opacity * 0.15;
+    ctx.fillRect(-w/2, -fs * 1.2, w, fs * 2.8);
+    ctx.globalAlpha = opacity;
     ctx.fillText(text, 0, 0);
-  } else if (position === 'bottom') {
-    ctx.translate(w / 2, h - scaledFont * 1.5);
-    ctx.strokeText(text, 0, 0);
-    ctx.fillText(text, 0, 0);
-  } else if (position === 'repeat') {
-    const step = scaledFont * 3.5;
-    ctx.rotate(-Math.PI / 6);
+  } else if (selectedPos === 'repeat') {
+    ctx.rotate(-Math.PI / 7);
+    const step = fs * 4;
     for (let y = -h; y < h * 2; y += step) {
-      for (let x = -w; x < w * 2; x += step * 3) {
-        ctx.globalAlpha = opacity;
-        ctx.strokeText(text, x, y);
+      for (let x = -w; x < w * 2; x += step * 2.8) {
         ctx.fillText(text, x, y);
       }
     }
   }
-
   ctx.restore();
 }
 
+function autoPreview() { if (currentImage) renderPreview(); }
+
 function getOutputCanvas() {
   if (!currentImage) return null;
-  const canvas = document.createElement('canvas');
+  const c = document.createElement('canvas');
   const w = currentImage.naturalWidth || currentImage.width;
   const h = currentImage.naturalHeight || currentImage.height;
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext('2d');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
   ctx.drawImage(currentImage, 0, 0, w, h);
   applyWatermark(ctx, w, h);
-  return canvas;
+  return c;
 }
 
 function exportImage() {
   const canvas = getOutputCanvas();
-  if (!canvas) { showToast('⚠️ Selecione um arquivo primeiro'); return; }
-  const link = document.createElement('a');
-  const originalName = currentFile ? currentFile.name.replace(/\.[^.]+$/, '') : 'documento';
-  link.download = `${originalName}_marcadagua.jpg`;
-  link.href = canvas.toDataURL('image/jpeg', 0.92);
-  link.click();
-  showToast('✓ Imagem salva!');
+  if (!canvas) { showToast('Selecione um arquivo primeiro'); return; }
+  const name = currentFile ? currentFile.name.replace(/\.[^.]+$/, '') : 'documento';
+  const a = document.createElement('a');
+  a.download = `${name}_marcadagua.jpg`;
+  a.href = canvas.toDataURL('image/jpeg', 0.93);
+  a.click();
+  showToast('Imagem salva!');
 }
 
 async function shareFile() {
   const canvas = getOutputCanvas();
-  if (!canvas) { showToast('⚠️ Selecione um arquivo primeiro'); return; }
-
+  if (!canvas) { showToast('Selecione um arquivo primeiro'); return; }
   canvas.toBlob(async function(blob) {
-    const originalName = currentFile ? currentFile.name.replace(/\.[^.]+$/, '') : 'documento';
-    const file = new File([blob], `${originalName}_marcadagua.jpg`, { type: 'image/jpeg' });
-
+    const name = currentFile ? currentFile.name.replace(/\.[^.]+$/, '') : 'documento';
+    const file = new File([blob], `${name}_marcadagua.jpg`, { type: 'image/jpeg' });
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
-        await navigator.share({
-          files: [file],
-          title: 'Documento com marca d\'água',
-          text: getFinalText()
-        });
-        showToast('✓ Compartilhado!');
-      } catch (err) {
-        if (err.name !== 'AbortError') exportImage();
-      }
+        await navigator.share({ files: [file], title: 'Documento com marca d\'água' });
+        showToast('Compartilhado!');
+      } catch(e) { if (e.name !== 'AbortError') exportImage(); }
     } else {
       exportImage();
     }
-  }, 'image/jpeg', 0.92);
+  }, 'image/jpeg', 0.93);
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
+  setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-function updateStep(n) {
-  ['s1','s2','s3'].forEach((id, i) => {
-    const el = document.getElementById(id);
-    el.className = 'step';
-    if (i + 1 < n) el.classList.add('done');
-    else if (i + 1 === n) el.classList.add('active');
-  });
-}
-
-// Auto-preview on settings change
-['watermarkText','position','fontSize','opacity','addDate'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('change', () => { if (currentImage) renderPreview(); });
-});
-
-document.getElementById('watermarkText').addEventListener('input', () => {
-  if (currentImage) renderPreview();
-});
-
-// Hide install banner if standalone
 if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
-  document.getElementById('installBanner').style.display = 'none';
+  document.getElementById('installTip').style.display = 'none';
 }
 </script>
 </body>
